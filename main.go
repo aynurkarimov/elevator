@@ -15,7 +15,7 @@ import (
 type Command string
 
 const (
-	CommandCall Command = "call"
+	CommandReq Command = "req"
 )
 
 type Action struct {
@@ -50,7 +50,7 @@ func parseUserAction() (*Action, error) {
 	}
 
 	// FIXME: must be dynamic
-	if strings.TrimSpace(parts[0]) != string(CommandCall) {
+	if strings.TrimSpace(parts[0]) != string(CommandReq) {
 		return nil, fmt.Errorf("invalid format for action (wrong command)\n")
 	}
 
@@ -66,7 +66,7 @@ func parseUserAction() (*Action, error) {
 
 	return &Action{
 		// elevatorId: uuid.UUID, // FIXME
-		command: CommandCall,
+		command: CommandReq,
 		floor:   uint8(floor),
 	}, nil
 }
@@ -127,7 +127,7 @@ func requestElevator(elevatorId uuid.UUID, requestedFloor uint8) error {
 
 func performUserAction(action *Action) error {
 	switch action.command {
-	case CommandCall:
+	case CommandReq:
 		return requestElevator(action.elevatorId, action.floor)
 	default:
 		return fmt.Errorf("unknown action (%v)\n", action.command)
