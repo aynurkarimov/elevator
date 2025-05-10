@@ -1,0 +1,63 @@
+{{define "index"}}
+<!doctype html>
+<title>Elevator</title>
+<html>
+    <body>
+        <h1>Elevators</h1>
+
+        <main>
+            <div id="elevators">
+                {{range .}}
+                <div>
+                    <h4>Id: <span id="elevatorId">{{.Id}}</span></h4>
+                    <h4>Floor: <span>{{.CurrentFloor}}</span></h4>
+
+                    <div>
+                        <input
+                            id="value"
+                            type="text"
+                            min="0"
+                            max="20"
+                            value="0"
+                        />
+                        <button id="request">Request</button>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </main>
+    </body>
+</html>
+
+<script>
+    const input = document.querySelector("#value");
+    const button = document.querySelector("#request");
+    const elevator = document.querySelector("#elevatorId");
+
+    button.addEventListener("click", async () => {
+        const requestedFloor = Number(input.value);
+        const elevatorId = elevator.innerHTML;
+
+        const resp = await fetch("request-elevator", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ requestedFloor, elevatorId }),
+        }).then(async (data) => await data.json());
+
+        const pollingId = setInterval(async () => {
+            await fetch("state")
+                .then((res) => res.text())
+                .then((html) => {
+                    document.getElementById("elevators").innerHTML = html;
+                });
+        }, 1000);
+
+        const cleanupId = setTimeout(() => {
+            clearInterval(pollingId);
+            clearTimeout(cleanupId);
+        }, resp.teardown);
+    });
+</script>
+{{end}}
