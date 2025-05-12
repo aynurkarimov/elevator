@@ -1,7 +1,10 @@
 {{define "index"}}
 <!doctype html>
-<title>Elevator</title>
 <html>
+    <head>
+        <title>Elevator</title>
+    </head>
+
     <body>
         <h1>Elevators</h1>
 
@@ -9,21 +12,24 @@
             <div id="elevators">
                 {{range .}}
                 <div>
-                    <h4>Id: <span id="elevatorId">{{.Id}}</span></h4>
+                    <h4>Id: <span></span>{{.Id}}</span></h4>
                     <h4>Floor: <span>{{.CurrentFloor}}</span></h4>
-
-                    <div>
-                        <input
-                            id="value"
-                            type="text"
-                            min="0"
-                            max="20"
-                            value="0"
-                        />
-                        <button id="request">Request</button>
-                    </div>
                 </div>
                 {{end}}
+            </div>
+
+            <div>
+                <span>
+                    <label for="elevatorId">Elevator Id</label>
+                    <select id="elevatorId" name="elevatorId">
+                        {{range .}}
+                        <option value="{{.Id}}">{{.Id}}</option>
+                        {{end}}
+                    </select>
+                </span>
+
+                <input id="value" type="text" min="0" max="20" value="0" />
+                <button id="request">Request</button>
             </div>
         </main>
     </body>
@@ -37,7 +43,7 @@
 
         button.addEventListener("click", async () => {
             const requestedFloor = Number(input.value);
-            const elevatorId = elevator.innerHTML;
+            const elevatorId = elevator.value;
 
             const resp = await fetch("request-elevator", {
                 method: "post",
