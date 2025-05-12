@@ -30,34 +30,39 @@
 </html>
 
 <script>
-    const input = document.querySelector("#value");
-    const button = document.querySelector("#request");
-    const elevator = document.querySelector("#elevatorId");
+    function bindListeners() {
+        const input = document.querySelector("#value");
+        const button = document.querySelector("#request");
+        const elevator = document.querySelector("#elevatorId");
 
-    button.addEventListener("click", async () => {
-        const requestedFloor = Number(input.value);
-        const elevatorId = elevator.innerHTML;
+        button.addEventListener("click", async () => {
+            const requestedFloor = Number(input.value);
+            const elevatorId = elevator.innerHTML;
 
-        const resp = await fetch("request-elevator", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ requestedFloor, elevatorId }),
-        }).then(async (data) => await data.json());
+            const resp = await fetch("request-elevator", {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ requestedFloor, elevatorId }),
+            }).then(async (data) => await data.json());
 
-        const pollingId = setInterval(async () => {
-            await fetch("state")
-                .then((res) => res.text())
-                .then((html) => {
-                    document.getElementById("elevators").innerHTML = html;
-                });
-        }, 1000);
+            const pollingId = setInterval(async () => {
+                await fetch("state")
+                    .then((res) => res.text())
+                    .then((html) => {
+                        document.getElementById("elevators").innerHTML = html;
+                        bindListeners();
+                    });
+            }, 1000);
 
-        const cleanupId = setTimeout(() => {
-            clearInterval(pollingId);
-            clearTimeout(cleanupId);
-        }, resp.teardown);
-    });
+            const cleanupId = setTimeout(() => {
+                clearInterval(pollingId);
+                clearTimeout(cleanupId);
+            }, resp.teardown);
+        });
+    }
+
+    bindListeners();
 </script>
 {{end}}
