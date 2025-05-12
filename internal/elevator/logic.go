@@ -25,6 +25,8 @@ func runElevator(teardownCh chan int, elevator *Elevator, requestedFloor uint8) 
 		return
 	}
 
+	elevator.Queue = append(elevator.Queue, requestedFloor)
+
 	floors := int(math.Abs(float64(int(elevator.CurrentFloor) - int(requestedFloor))))
 	difference := int((constants.SPEED * time.Duration(floors)).Milliseconds())
 
@@ -47,6 +49,8 @@ func runElevator(teardownCh chan int, elevator *Elevator, requestedFloor uint8) 
 			elevator.Mu.Unlock()
 		}
 	}
+
+	elevator.Queue = elevator.Queue[1:]
 }
 
 func RequestElevator(elevatorId uuid.UUID, requestedFloor uint8) (int, error) {
